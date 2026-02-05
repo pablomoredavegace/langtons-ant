@@ -56,9 +56,3 @@ Meaning: grid 100×100, ant at (50,50) facing Up (`2`), and three black cells at
 ## Contact
 
 If you find issues or want improvements, open an issue or contact me at pablomoredavegace (GitHub).
-
----
-
-If you want, I can:
-- Generate a ready-to-use `CMakeLists.txt` and a minimal `main.cpp` that parses the input file and runs the simulation.
-- Create a sample `sample_input.txt` and an initial `.gitignore` and `LICENSE` (MIT) file. Which of those should I create next?
