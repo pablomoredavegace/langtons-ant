@@ -34,15 +34,15 @@ class Tape {
   void SetBlack(int x, int y, bool IsBlack);
   void CambioColor(int x, int y);
 
-  std::size_t GetSizeX() const;
-  std::size_t GetSizeY() const;
+  std::size_t GetSizeX() const { return sizeX; };
+  std::size_t GetSizeY() const { return sizeY; };
 
   std::vector<std::pair<int,int>> BlackCells() const;
 
-  friend std::ostream operator<<(std::ostream& os, const Tape& tape);
+  friend std::ostream& operator<<(std::ostream& os, const Tape& tape);
 
   private:
-  std::size_t Index(int x, int y) const;
+  std::size_t PositionIndex(int x, int y) const;
 
   std::size_t sizeX;
   std::size_t sizeY;
