@@ -41,7 +41,7 @@ Direction ParseDirection(int d) {
  * @param d Dirección
  * @return Entero 0,1,2,3
  */
-int TranslateDiretion(Direction d) {
+int TranslateDirection(Direction d) {
   switch (d) {
     case Direction::Left: 
       return 0;
@@ -74,7 +74,7 @@ bool SaveState(const std::string& filename, const Simulator& sim) {
   const Ant& ant = sim.GetAnt();
 
   out << tape.GetSizeX() << " " << tape.GetSizeY() << "\n";
-  out << ant.GetX() << " " << ant.GetY() << " " << TranslateDiretion(ant.GetDir()) << "\n";
+  out << ant.GetX() << " " << ant.GetY() << " " << TranslateDirection(ant.GetDir()) << "\n";
   for(const auto& [x, y] : tape.BlackCells()) {
     out << x << " " << y << "\n";
   }
