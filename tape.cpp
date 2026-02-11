@@ -21,7 +21,7 @@ bool Tape::IsBlack(int x, int y) const {
   if(!Limits(x, y)) {
     throw std::out_of_range("La celda está fuera de rango");
   }
-  return cells[PositionIndex(x, y) != 0];
+  return cells[PositionIndex(x, y)] != 0;
 }
 
 void Tape::SetBlack(int x, int y, bool black) {
@@ -35,7 +35,8 @@ void Tape::CambioColor(int x, int y) {
   if(!Limits(x, y)) {
     throw std::out_of_range("La celda está fuera de rango");
   }
-  cells[PositionIndex(x, y)] = cells[PositionIndex(x, y)] ? 0 : 1;
+  auto& c = cells[PositionIndex(x, y)];
+  c = (c == 0) ? 1 : 0;
 }
 
 std::vector<std::pair<int, int>> Tape::BlackCells() const {
