@@ -7,12 +7,19 @@
 
 #include "simulator.h"
 
-
+/**
+ * @brief Limpiar la salida de consola
+ */
 void BorrarOutput() {
   std::cout << "\033[H\033[2J\033[3J";
   std::cout.flush();
 }
 
+/**
+ * @brief Conversión de entero del archivo de entrada a dirección
+ * @param d Valor 0,1,2,3
+ * @return Dirección equivalente al entero
+ */
 Direction ParseDirection(int d) {
   switch (d) {
     case 0: 
@@ -29,6 +36,11 @@ Direction ParseDirection(int d) {
   }
 }
 
+/**
+ * @brief Conversión de dirección a entero para guardar en archivo de salida
+ * @param d Dirección
+ * @return Entero 0,1,2,3
+ */
 int TranslateDiretion(Direction d) {
   switch (d) {
     case Direction::Left: 
@@ -46,6 +58,12 @@ int TranslateDiretion(Direction d) {
 }
 
 
+/**
+ * @brief Guardar el estado actual de la simulación en un archivo
+ * @param filename Archivo de salida
+ * @param sim Simulador con el estado actual
+ * @return true si se guardó, false en caso contrario
+ */
 bool SaveState(const std::string& filename, const Simulator& sim) {
   std::ofstream out(filename);
   if(!out) {
@@ -72,13 +90,6 @@ int main(int argc, char* argv[]) {
 
   std::vector<std::string> args(argv + 1, argv + argc);
 
-  if(args.empty()) {
-    std::cout << "Uso: \n"
-    << " " << argv[0] << " input.txt [maxSteps] [delayEnMs]\n"
-    << " " << argv[0] << " -p input.txt\n";
-    return 1;
-  }
-
   int argumentos = 0;
 
   if(!args.empty() && args[0] == "-p") {
@@ -101,7 +112,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  Tape tape(100, 100); 
+  Tape tape(60, 30); 
   Ant ant(30, 15, Direction::Up);
 
   if(usoInput) {

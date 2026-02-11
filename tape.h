@@ -1,53 +1,101 @@
+/**
+ * @file tape.h
+ * @brief Declaración de la clase Tape para representar la cinta bidimensional
+ */
+
 #ifndef TAPE_H
 #define TAPE_H
-
-/*   Tape, representa la cinta bidimensional de celdas con valor binario, color blanca/negra,
-sobre la que se mueve la hormiga. Aunque teóricamente se trata de una cinta de tamaño
-infinito, en la implementación se establece un tamaño fijo para cada dimensión, sizeX y
-sizeY. De esta manera, cada celda se identifica mediante un par de coordenadas en el
-rango: 0..sizeX-1, 0..sizeY-1.
-La clase Tape oculta los detalles de su implementación, y provee las operaciones que
-permiten acceder a una celda para consultar o modificar su color.
-
-Se contemplan dos formas de inicializar la cinta:
-○ Por defecto, todas las celdas son blancas (valor binario 0).
-○ También se puede inicializar leyendo desde un fichero de texto las coordenadas de
-las celdas negras (valor binario 1).
-
-La visualización por pantalla también es responsabilidad de la cinta. Para ello sobrecarga
-el operador de inserción en flujo, que muestra por pantalla la visualización en modo texto.
-Las celdas blancas se muestran con el carácter ‘ ‘, y las celdas negras se muestran con
-el carácter ‘X’. Opcionalmente se puede utilizar las secuencias de escape ANSI [4] para
-mostrar caracteres a color en modo texto.*/
-
 
 #include <vector>
 #include <iostream>
 
+
+/**
+ * @class Tape
+ * @brief Representa la cinta bidimensional finita de celdas binarias (blanco/negro)
+ * 
+ * Tape, representa la cinta bidimensional de celdas sobre la que se mueve la hormiga. 
+ * Además, se encarga de la visualización por pantalla
+ */
+
+
 class Tape {
   public:
-  Tape(std::size_t sizeX, std::size_t sizeY);
-  
-  bool Limits(int x, int y) const;
-  bool IsBlack(int x, int y) const;
 
-  void SetBlack(int x, int y, bool IsBlack);
-  void CambioColor(int x, int y);
+    /**
+     * @brief Construcción de una cinta de tamaño fijo sizeX * sizeY
+     * @param sizeX Número de columnas
+     * @param sizeY Número de filas
+     */
+    Tape(std::size_t sizeX, std::size_t sizeY);
+    
+    /**
+     * @brief Comprobar si la celda (x,y) está dentro de la cinta
+     * @param x Coordenada X
+     * @param y Coordenada Y
+     * @return true si está en el rango de la cinta
+     */
+    bool Limits(int x, int y) const;
 
-  std::size_t GetSizeX() const { return sizeX; };
-  std::size_t GetSizeY() const { return sizeY; };
+    /**
+     * @brief Comprobar si la celda (x,y) está en negro
+     * @param x Coordenada X
+     * @param y Coordenada Y
+     * @return true si está en negro
+     */
+    bool IsBlack(int x, int y) const;
 
-  std::vector<std::pair<int,int>> BlackCells() const;
 
+    /**
+     * @brief Inicializar la celda (x,y) a negro o blanco
+     * @param x Coordenada X
+     * @param y Coordenada Y 
+     * @param IsBlack true para coordenada en negro, false en blanco
+     */
+    void SetBlack(int x, int y, bool IsBlack);
+
+    /**
+     * @brief Cambiar la celda (x,y) de color
+     * @param x Coordenada X
+     * @param y Coordenada Y 
+     */
+    void CambioColor(int x, int y);
+
+    /**
+     * @brief Getters
+     * @return Número de filas / columnas
+     */
+    std::size_t GetSizeX() const { return sizeX; };
+    std::size_t GetSizeY() const { return sizeY; };
+
+    /**
+     * @brief Vector de coordenadas de las celdas negras
+     * @return Vector de pares (x,y) con celdas negras
+     */
+    std::vector<std::pair<int,int>> BlackCells() const;
+
+  /**
+   * @brief Representación textual de la cinta
+   * @param os Flujo de salida
+   * @param tape Cinta a mostrar
+   * @return Referencia al flujo de salida
+   */
   friend std::ostream& operator<<(std::ostream& os, const Tape& tape);
 
   private:
-  std::size_t PositionIndex(int x, int y) const;
 
-  std::size_t sizeX;
-  std::size_t sizeY;
-  
-  std::vector<unsigned char> cells;
+    /**
+     * @brief Convertir coordenadas a índice
+     * @param x Coordenada X
+     * @param y Coordenada Y 
+     * @return Índice
+     */
+    std::size_t PositionIndex(int x, int y) const;
+
+    std::size_t sizeX;
+    std::size_t sizeY;
+    
+    std::vector<unsigned char> cells;
 };
 
 #endif
