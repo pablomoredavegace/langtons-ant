@@ -70,22 +70,22 @@ int main(int argc, char* argv[]) {
     std::cout << "Uso: \n"
     << " " << argv[0] << " input.txt [maxSteps] [delayEnMs]\n"
     << " " << argv[0] << " -p input.txt\n";
-  return 1;
+    return 1;
   }
 
   int argumentos = 0;
 
-  if(args[0] == "-p") {
+  if(!args.empty() && args[0] == "-p") {
     porPasos = true;
     argumentos = 1;
   }
 
-  if(argumentos >= static_cast<int>(args.size())) {
-    std::cout << "Falta el fichero de entrada \n";
-    return 1;
+  bool usoInput = false;
+  if(argumentos < static_cast<int>(args.size())) {
+    usoInput = true;
+    ArchivoInput = args[argumentos++];
   }
 
-  ArchivoInput = args[argumentos++];
   if(!porPasos) {
     if(argumentos < static_cast<int>(args.size())) {
       maxSteps = static_cast<std::size_t>(std::stoull(args[argumentos++]));
@@ -95,24 +95,29 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  std::ifstream in(ArchivoInput);
-  if(!in) {
-    std::cerr << "No se pudo abrir el fichero: " << ArchivoInput << "\n";
-    return 1;
-  }
+  Tape tape(100, 100); 
+  Ant ant(30, 15, Direction::Up);
 
-  std::size_t sizeX, sizeY;
-  in >> sizeX >> sizeY;
+  if(usoInput) {
+    std::ifstream in(ArchivoInput);
+    if(!in) {
+      std::cerr << "No se pudo abrir el fichero: " << ArchivoInput << "\n";
+      return 1;
+    }
 
-  int antX, antY, antDir;
-  in >> antX >> antY >> antDir;
+    std::size_t sizeX, sizeY;
+    in >> sizeX >> sizeY;
 
-  Tape tape(sizeX, sizeY);
-  Ant ant(antX, antY, ParseDirection(antDir));
+    int antX, antY, antDir;
+    in >> antX >> antY >> antDir;
 
-  int x, y;
-  while(in >> x >> y) {
-    tape.SetBlack(x, y, true);
+    tape = Tape(sizeX, sizeY);
+    ant = Ant(antX, antY, ParseDirection(antDir));
+
+    int x, y;
+    while(in >> x >> y) {
+      tape.SetBlack(x, y, true);
+    }
   }
 
   Simulator sim(tape, ant);
