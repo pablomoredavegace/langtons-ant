@@ -32,7 +32,7 @@ int TranslateDiretion(Direction d) {
     case Direction::Up: 
       return 2;
     case Direction::Down:
-      return ;
+      return 3;
     
     default: 
       return 2;
@@ -40,7 +40,7 @@ int TranslateDiretion(Direction d) {
 }
 
 
-bool SaveState(const std::string filename, const Simulator sim) {
+bool SaveState(const std::string& filename, const Simulator& sim) {
   std::ofstream out(filename);
   if(!out) {
     return false;
@@ -51,7 +51,7 @@ bool SaveState(const std::string filename, const Simulator sim) {
 
   out << tape.GetSizeX() << " " << tape.GetSizeY() << "\n";
   out << ant.GetX() << " " << ant.GetY() << " " << TranslateDiretion(ant.GetDir()) << "\n";
-  for(const auto [x, y] : tape.BlackCells()) {
+  for(const auto& [x, y] : tape.BlackCells()) {
     out << x << " " << y << "\n";
   }
   return true;
@@ -117,12 +117,12 @@ int main(int argc, char* argv[]) {
 
   Simulator sim(tape, ant);
 
-  bool UserFin = false;
-  bool BoundsFin = false;
-
   if(porPasos) {
     while(true) {
+      std::cout << "\x1B[2J\x1B[H";
       sim.Print(std::cout);
+      std::cout.flush();
+
       std::cout << "Pasos: " << sim.GetSteps() << "\n";
       std::cout << "Enter: paso, q: salir ";
       
@@ -130,24 +130,24 @@ int main(int argc, char* argv[]) {
       std::getline(std::cin, inputPaso);
       
       if(inputPaso == "q" || inputPaso == "Q") {
-        UserFin = true;
         break;
       }
 
       if(!sim.Step()) {
-        BoundsFin = true;
         std::cout << "\n La hormiga salio de los limites\n";
         break;
       }
     }
   } else {
     for(std::size_t i = 0; i < maxSteps; i++) {
+      std::cout << "\x1B[2J\x1B[H";
       sim.Print(std::cout);
+      std::cout.flush();
+
       std::cout << "Pasos: " << sim.GetSteps() << " de " << maxSteps << "\n";
       std::this_thread::sleep_for(std::chrono::milliseconds(delayEnMs));
 
       if(!sim.Step()) {
-        BoundsFin = true;
         std::cout << "\n La hormiga salio de los limites\n";
         break;
       }

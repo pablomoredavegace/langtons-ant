@@ -47,19 +47,19 @@ void Ant::TurnRight() {
 void Ant::Move() {
   switch (Dir) {
     case Direction::Up: 
-      PosY--;
+      --PosY;
       break;
 
     case Direction::Down: 
-      PosY++;
+      ++PosY;
       break;
 
     case Direction::Left: 
-      PosX--;
+      --PosX;
       break;
 
     case Direction::Right: 
-      PosX++;
+      ++PosX;
       break;
   }
 }
@@ -69,7 +69,7 @@ void Ant::Step(Tape& tape) {
   tape.CambioColor(PosX, PosY);
   if(black) {
     TurnRight();
-  } else TurnLeft();
+  } else { TurnLeft(); }
   Move();
 }
 
@@ -77,19 +77,18 @@ char Ant::Orientation() const {
   switch (Dir) {
     case Direction::Up: 
       return '^';
-      break;
 
     case Direction::Down: 
       return 'v';
-      break;
 
     case Direction::Left: 
       return '<';
-      break;
 
     case Direction::Right: 
       return '>';
-      break;
+    
+    default: 
+      return '?';
   }
 }
 
