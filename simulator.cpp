@@ -21,6 +21,7 @@ bool Simulator::Step() {
 void Simulator::Print(std::ostream& os) const {
   os << "Paso: " << steps_ << '\n';
   for(int y = 0; y < static_cast<int>(tape_.GetSizeY()); ++y) {
+    os << "|";
     for(int x = 0; x < static_cast<int>(tape_.GetSizeX()); ++x) {
       if(x == ant_.GetX() && y == ant_.GetY()) {
         os << ant_.Orientation();
@@ -29,5 +30,5 @@ void Simulator::Print(std::ostream& os) const {
       }
     }
   }
-  os << '\n';
+  os << '|\n';
 }

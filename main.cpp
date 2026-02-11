@@ -7,6 +7,12 @@
 
 #include "simulator.h"
 
+
+void BorrarOutput() {
+  std::cout << "\033[H\033[2J\033[3J";
+  std::cout.flush();
+}
+
 Direction ParseDirection(int d) {
   switch (d) {
     case 0: 
@@ -124,13 +130,10 @@ int main(int argc, char* argv[]) {
 
   if(porPasos) {
     while(true) {
-      std::cout << "\x1B[2J\x1B[H";
+      BorrarOutput();
       sim.Print(std::cout);
-      std::cout.flush();
 
-      std::cout << "Pasos: " << sim.GetSteps() << "\n";
       std::cout << "Enter: paso, q: salir ";
-      
       std::string inputPaso;
       std::getline(std::cin, inputPaso);
       
@@ -139,15 +142,16 @@ int main(int argc, char* argv[]) {
       }
 
       if(!sim.Step()) {
+        BorrarOutput();
+        sim.Print(std::cout);
         std::cout << "\n La hormiga salio de los limites\n";
         break;
       }
     }
   } else {
     for(std::size_t i = 0; i < maxSteps; i++) {
-      std::cout << "\x1B[2J\x1B[H";
+      BorrarOutput();
       sim.Print(std::cout);
-      std::cout.flush();
 
       std::cout << "Pasos: " << sim.GetSteps() << " de " << maxSteps << "\n";
       std::this_thread::sleep_for(std::chrono::milliseconds(delayEnMs));
