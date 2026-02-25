@@ -51,6 +51,11 @@ std::vector<std::tuple<int, int, std::uint16_t>> Tape::NoWhiteCells() const {
   return out;
 }
 
+std::uint16_t Tape::CicloColor(std::uint16_t c) const noexcept {
+  if(n_colors == 0) return 0;
+  return static_cast<std::uint16_t>((c+1) % n_colors);
+}
+
 std::ostream& operator<<(std::ostream& os, const Tape& tape) {
   for(std::size_t y = 0; y < tape.sizeY; y++) {
     for(std::size_t x = 0; x < tape.sizeX; x++) {
