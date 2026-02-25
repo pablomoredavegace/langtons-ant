@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 
-Tape::Tape(size_t sizeX, size_t sizeY) : sizeX(sizeX), sizeY(sizeY), cells(sizeX * sizeY, 0) {}
+Tape::Tape(size_t sizeX, size_t sizeY, std::uint16_t n_Colors) : sizeX(sizeX), sizeY(sizeY), n_colors(n_Colors), cells(sizeX * sizeY, 0) {}
 
 bool Tape::Limits(int x, int y) const {
   if( (x >= 0) && (y >=0) && (static_cast<std::size_t>(x) < sizeX) && (static_cast<std::size_t>(y) < sizeY)) {
@@ -17,34 +17,34 @@ std::size_t Tape::PositionIndex(int x, int y) const {
   return static_cast<std::size_t>(y) * sizeX + static_cast<std::size_t>(x);
 }
 
-bool Tape::IsBlack(int x, int y) const {
+
+void Tape::CambioColor(int x, int y, std::uint16_t color) {
   if(!Limits(x, y)) {
     throw std::out_of_range("La celda está fuera de rango");
   }
-  return cells[PositionIndex(x, y)] != 0;
-}
-
-void Tape::SetBlack(int x, int y, bool black) {
-  if(!Limits(x, y)) {
-    throw std::out_of_range("La celda está fuera de rango");
-  }
-  cells[PositionIndex(x, y)] = black ? 1 : 0;
-}
-
-void Tape::CambioColor(int x, int y) {
-  if(!Limits(x, y)) {
-    throw std::out_of_range("La celda está fuera de rango");
+  if(n_colors == 0) {
+    return;
   }
   auto& c = cells[PositionIndex(x, y)];
+  c = static_cast<std::uint16_t>(color % n_colors);
   c = (c == 0) ? 1 : 0;
 }
 
-std::vector<std::pair<int, int>> Tape::BlackCells() const {
-  std::vector<std::pair<int, int>> out;
-  for(std::size_t y = 0; y < sizeY; y++) {
-    for(std::size_t x = 0; x < sizeX; x++){
-      if(cells[y * sizeX + x]) {
-        out.push_back({static_cast<int>(x), static_cast<int>(y)});
+std::uint16_t Tape::GetColor(int x, int y) const noexcept {
+  if(!Limits(x, y)) {
+    throw std::out_of_range("La celda está fuera de rango");
+  }
+  return cells[PositionIndex(x, y)];
+}
+
+std::vector<std::tuple<int, int, std::uint16_t>> Tape::NoWhiteCells() const {
+  std::vector<std::tuple<int, int, std::uint16_t>> out;
+  out.reserve(256);
+  for(std::size_t y = 0; y < sizeY; ++y) {
+    for(std::size_t x = 0; x < sizeX; ++x){
+      const std::uint16_t c = cells [y * sizeX + x];
+      if(c != 0) {
+        out.emplace_back(static_cast<int>(x), static_cast<int>(y), c);
       }
     }
   }
