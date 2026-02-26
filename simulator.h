@@ -1,14 +1,17 @@
-/**
- * @file simulator.h
- * @brief Declaración de la clase Simulator
- */
 
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
 #include <iostream>
+#include <vector>
+#include <memory>
 #include "tape.h"
 #include "ant.h"
+
+/**
+ * @file simulator.h
+ * @brief Declaración de la clase Simulator
+ */
 
 
 /**
@@ -26,7 +29,7 @@ class Simulator {
      * @param tape Cinta inicial
      * @param ant Hormiga inicial
      */
-    Simulator(Tape tape, Ant ant);
+    Simulator(Tape tape, std::vector<std::unique_ptr<Ant>> ants);
 
     /**
      * @brief Ejecución de un paso de simulación
@@ -34,6 +37,10 @@ class Simulator {
      */
     bool Step();
 
+    /**
+     * @brief Devuelve el color de una celda (traduce)
+     */
+    char CellChar(std::uint16_t color) const;
 
     /**
      * @brief Muestra el estado actual por pantalla
@@ -44,10 +51,10 @@ class Simulator {
 
     /**
      * @brief Getters
-     * @return Referencia constante a la cinta / hormiga
+     * @return Referencia constante a la cinta / hormigas
      */
     const Tape& GetTape() const { return tape_; }
-    const Ant& GetAnt() const { return ant_; }
+    const std::vector<std::unique_ptr<Ant>>& GetAnts() const { return ants_; }
     
 
     /**
@@ -58,7 +65,7 @@ class Simulator {
 
     private:
       Tape tape_;
-      Ant ant_;
+      std::vector<std::unique_ptr<Ant>> ants_;
       std::size_t steps_{0};
 };
 
