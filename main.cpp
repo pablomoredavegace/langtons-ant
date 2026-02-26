@@ -4,6 +4,10 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <tuple>
+#include <vector>
+#include <memory>
+#include <sstream>
 
 #include "simulator.h"
 
@@ -17,18 +21,18 @@ void BorrarOutput() {
 
 /**
  * @brief Conversión de entero del archivo de entrada a dirección
- * @param d Valor 0,1,2,3
- * @return Dirección equivalente al entero
+ * @param d Valor < > ^ v
+ * @return Dirección equivalente
  */
-Direction ParseDirection(int d) {
+Direction ParseDirection(char d) {
   switch (d) {
-    case 0: 
+    case '<': 
       return Direction::Left;
-    case 1:
+    case '>':
       return Direction::Right;
-    case 2: 
+    case '^': 
       return Direction::Up;
-    case 3:
+    case 'v':
       return Direction::Down;
     
     default: 
@@ -36,27 +40,14 @@ Direction ParseDirection(int d) {
   }
 }
 
-/**
- * @brief Conversión de dirección a entero para guardar en archivo de salida
- * @param d Dirección
- * @return Entero 0,1,2,3
- */
-int TranslateDirection(Direction d) {
-  switch (d) {
-    case Direction::Left: 
-      return 0;
-    case Direction::Right:
-      return 1;
-    case Direction::Up: 
-      return 2;
-    case Direction::Down:
-      return 3;
-    
-    default: 
-      return 2;
-  }
-}
 
+static std::unique_ptr<Ant> TranslateAnt(const std::string& type, int x, int y, Direction dir) {
+  if(type == "DI") return std::make_unique<AntDI>(x, y, dir);
+  if(type == "DDII") return std::make_unique<AntDDII>(x, y, dir);
+  if(type == "IIDD") return std::make_unique<AntIIDD>(x, y, dir);
+  if(type == "DIDI") return std::make_unique<AntDIDI>(x, y, dir);
+  return nullptr;
+}
 
 /**
  * @brief Guardar el estado actual de la simulación en un archivo
@@ -71,12 +62,19 @@ bool SaveState(const std::string& filename, const Simulator& sim) {
   }
 
   const Tape& tape = sim.GetTape();
-  const Ant& ant = sim.GetAnt();
+  const auto& ants = sim.GetAnts();
 
-  out << tape.GetSizeX() << " " << tape.GetSizeY() << "\n";
-  out << ant.GetX() << " " << ant.GetY() << " " << TranslateDirection(ant.GetDir()) << "\n";
-  for(const auto& [x, y] : tape.BlackCells()) {
-    out << x << " " << y << "\n";
+  out << tape.GetSizeX() << " " << tape.GetSizeY() << " " << tape.GetNumColors() << "\n";
+
+  for(std::size_t i = 0; i < ants.size(); ++i) {
+    const auto& a = ants[i];
+    out << a->GetType() << " " << a->GetX() << " " << a->GetY() << " " << a->Orientation();
+    if(i + 1 < ants.size()) out << " ; ";
+  }
+  out << "\n";
+
+  for(const auto& [x, y, c] : tape.NoWhiteCells()) {
+    out << x << " " << y << " " << c << "\n";
   }
   return true;
 }
@@ -84,24 +82,32 @@ bool SaveState(const std::string& filename, const Simulator& sim) {
 int main(int argc, char* argv[]) {
 
   bool porPasos = false;
-  std::string ArchivoInput;
   std::size_t maxSteps = 10000;
   int delayEnMs= 50;
 
   std::vector<std::string> args(argv + 1, argv + argc);
 
+  if(args.empty()) {
+    std::cout << "Uso:\n"
+    << " " << argv[0] << " input.txt [pasosMax] [delayEnMs]\n"
+    << " " << argv[0] << " -p input.txt\n";
+    return 1;
+  }
+
   int argumentos = 0;
 
-  if(!args.empty() && args[0] == "-p") {
+  if(args[0] == "-p") {
     porPasos = true;
     argumentos = 1;
   }
-
+  
   bool usoInput = false;
-  if(argumentos < static_cast<int>(args.size())) {
-    usoInput = true;
-    ArchivoInput = args[argumentos++];
+  if(argumentos >= static_cast<int>(args.size())) {
+    std::cerr << "Falta el fichero de entrada\n";
+    return 1;
   }
+
+  const std::string ArchivoInput = args[argumentos++];
 
   if(!porPasos) {
     if(argumentos < static_cast<int>(args.size())) {
@@ -112,10 +118,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  Tape tape(60, 30); 
-  Ant ant(30, 15, Direction::Up);
-
-  if(usoInput) {
     std::ifstream in(ArchivoInput);
     if(!in) {
       std::cerr << "No se pudo abrir el fichero: " << ArchivoInput << "\n";
@@ -123,23 +125,47 @@ int main(int argc, char* argv[]) {
     }
 
     std::size_t sizeX, sizeY;
-    in >> sizeX >> sizeY;
+    int nColors;
+    in >> sizeX >> sizeY >> nColors;
 
     int antX, antY, antDir;
     in >> antX >> antY >> antDir;
 
-    tape = Tape(sizeX, sizeY);
-    ant = Ant(antX, antY, ParseDirection(antDir));
+    Tape tape(sizeX, sizeY, static_cast<std::uint16_t>(nColors));
 
-    int x, y;
-    while(in >> x >> y) {
-      tape.SetBlack(x, y, true);
+    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::string line2;
+    std::getline(in, line2);
+    std::vector<std::unique_ptr<Ant>> ants;
+    
+    std::stringstream ss(line2);
+    std::string chunk;
+    while(std::getline(ss, chunk, ';')) {
+      std::istringstream item(chunk);
+      std::string type;
+      int x, y;
+      char dir;
+
+      item >> type >> x >> y >> dir;
+      auto a = TranslateAnt(type, x, y, ParseDirection(dir));
+      if(!a) {
+        std::cerr << "Tipo no soportado: " << type << "\n";
+        return 1;
+      }
+      ants.push_back(std::move(a));
+    }  
+
+    int x, y, c;
+    while(in >> x >> y >> c) {
+      tape.CambioColor(x, y, static_cast<std::uint16_t>(c));
     }
-  }
 
-  Simulator sim(tape, ant);
+  Simulator sim(std::move(tape), std::move(ants));
 
   if(porPasos) {
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
     while(true) {
       BorrarOutput();
       sim.Print(std::cout);
@@ -155,7 +181,7 @@ int main(int argc, char* argv[]) {
       if(!sim.Step()) {
         BorrarOutput();
         sim.Print(std::cout);
-        std::cout << "\n La hormiga salio de los limites\n";
+        std::cout << "\n Una hormiga salio de los limites\n";
         break;
       }
     }
@@ -168,7 +194,9 @@ int main(int argc, char* argv[]) {
       std::this_thread::sleep_for(std::chrono::milliseconds(delayEnMs));
 
       if(!sim.Step()) {
-        std::cout << "\n La hormiga salio de los limites\n";
+        BorrarOutput();
+        sim.Print(std::cout);
+        std::cout << "\n Una hormiga salio de los limites\n";
         break;
       }
     }
