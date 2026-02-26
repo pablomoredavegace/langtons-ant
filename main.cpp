@@ -101,7 +101,6 @@ int main(int argc, char* argv[]) {
     argumentos = 1;
   }
   
-  bool usoInput = false;
   if(argumentos >= static_cast<int>(args.size())) {
     std::cerr << "Falta el fichero de entrada\n";
     return 1;
@@ -127,10 +126,6 @@ int main(int argc, char* argv[]) {
     std::size_t sizeX, sizeY;
     int nColors;
     in >> sizeX >> sizeY >> nColors;
-
-    int antX, antY, antDir;
-    in >> antX >> antY >> antDir;
-
     Tape tape(sizeX, sizeY, static_cast<std::uint16_t>(nColors));
 
     in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -138,7 +133,7 @@ int main(int argc, char* argv[]) {
     std::string line2;
     std::getline(in, line2);
     std::vector<std::unique_ptr<Ant>> ants;
-    
+
     std::stringstream ss(line2);
     std::string chunk;
     while(std::getline(ss, chunk, ';')) {

@@ -141,6 +141,12 @@ char Ant::Orientation() const {
   }
 }
 
+std::uint16_t Ant::NextColor(const Tape& tape, std::uint16_t current) const noexcept {
+  const std::uint16_t n = tape.GetNumColors();
+  if(n == 0) return 0;
+  return static_cast<std::uint16_t>((current + 1) % n);
+}
+
 std::ostream& operator<<(std::ostream& os, const Ant& ant) {
   if(!ant.GetAntColor().empty()) os << ant.GetAntColor();
   os << ant.GetType() << " (" << ant.GetX() << "," << ant.GetY() << ") " << ant.Orientation();

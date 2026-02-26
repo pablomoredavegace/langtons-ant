@@ -55,7 +55,7 @@ class Tape {
     std::size_t GetSizeX() const { return sizeX; };
     std::size_t GetSizeY() const { return sizeY; };
     std::uint16_t GetNumColors() const noexcept { return n_colors; }
-    std::uint16_t GetColor(int x, int y) const noexcept;
+    std::uint16_t GetColor(int x, int y) const;
 
     /**
      * @brief Tupla de coordenadas de celdas no blancas

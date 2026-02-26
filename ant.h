@@ -105,25 +105,25 @@ std::ostream& operator<<(std::ostream& os, const Ant& ant);
 
 class AntDI final : public Ant {
   public:
-    AntDI(int x, int y, Direction dir, std::string antColor = "\033[32m");
+    AntDI(int x, int y, Direction dir, std::string antColor = "\033[31m");
     void Step(Tape& tape) override;
 };
 
 class AntDDII final : public Ant {
   public:
-    AntDDII(int x, int y, Direction dir, std::string antColor = "\033[34m");
+    AntDDII(int x, int y, Direction dir, std::string antColor = "\033[33m");
     void Step(Tape& tape) override;
 };
 
 class AntIIDD final : public Ant {
   public:
-    AntIIDD(int x, int y, Direction dir, std::string antColor = "\033[35m");
+    AntIIDD(int x, int y, Direction dir, std::string antColor = "\033[32m");
     void Step(Tape& tape) override;
 };
 
 class AntDIDI final : public Ant {
   public:
-    AntDIDI(int x, int y, Direction dir, std::string antColor = "\033[36m");
+    AntDIDI(int x, int y, Direction dir, std::string antColor = "\033[34m");
     void Step(Tape& tape) override;
 };
 
