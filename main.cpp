@@ -46,6 +46,8 @@ static std::unique_ptr<Ant> TranslateAnt(const std::string& type, int x, int y, 
   if(type == "DDII") return std::make_unique<AntDDII>(x, y, dir);
   if(type == "IIDD") return std::make_unique<AntIIDD>(x, y, dir);
   if(type == "DIDI") return std::make_unique<AntDIDI>(x, y, dir);
+  if(type == "IDID") return std::make_unique<Ant_IDID>(x, y, dir);
+  if(type == "IDID45") return std::make_unique<Ant_IDID_45>(x, y, dir);
   return nullptr;
 }
 

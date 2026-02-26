@@ -127,4 +127,15 @@ class AntDIDI final : public Ant {
     void Step(Tape& tape) override;
 };
 
+class Ant_IDID final : public Ant {
+  public:
+    Ant_IDID(int x, int y, Direction dir, std::string antColor = "\033[38m");
+    void Step(Tape& tape) override;
+};
+
+class Ant_IDID_45 final : public Ant {
+  public:
+    Ant_IDID_45(int x, int y, Direction dir, std::string antColor = "\033[36m");
+    void Step(Tape& tape) override;
+};
 #endif

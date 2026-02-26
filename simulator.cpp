@@ -6,6 +6,15 @@ Simulator::Simulator(Tape tape, std::vector<std::unique_ptr<Ant>> ants) : tape_(
 
 bool Simulator::Step() {
   for(const auto& a : ants_) {
+    if(a->GetType() == "IDID45") {
+      auto PosX45 = a->GetX();
+      auto PosY45 = a->GetY();
+      if(!tape_.Limits(--PosX45, --PosY45)) {
+        return false;
+      } else if(!tape_.Limits(++PosX45, ++PosY45)) {
+        return false;
+      }
+    }
     if(!tape_.Limits(a->GetX(), a->GetY())) {
       return false;
     }
@@ -13,7 +22,7 @@ bool Simulator::Step() {
   
   for(auto& a :ants_) {
     a->Step(tape_);
-    if(!tape_.Limits(a->GetX(), a->GetY())) {
+    if(!tape_.Limits((a->GetX()), a->GetY())) {
       return false;
     }
   }

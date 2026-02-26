@@ -7,7 +7,7 @@
 Tape::Tape(size_t sizeX, size_t sizeY, std::uint16_t n_Colors) : sizeX(sizeX), sizeY(sizeY), n_colors(n_Colors), cells(sizeX * sizeY, 0) {}
 
 bool Tape::Limits(int x, int y) const {
-  return x >= 0 && y >= 0 && static_cast<std::size_t>(y) < sizeY;
+  return x >= 0 && y >= 0 && static_cast<std::size_t>(y) < sizeY && static_cast<std::size_t>(x) < sizeX;
 }
 
 std::size_t Tape::PositionIndex(int x, int y) const {

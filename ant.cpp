@@ -78,6 +78,9 @@ void Ant::BaseStep(Tape& tape, std::string_view rule) {
 
   if(!rule.empty()) {
     const char turn = rule[static_cast<std::size_t>(c2) % rule.size()];
+    if(rule == "IDID45") {
+      Move();
+    }
     if(turn == 'D' || turn == 'd') {
       TurnRight();
     }
@@ -110,6 +113,18 @@ AntDIDI::AntDIDI(int x, int y, Direction dir, std::string ColorAnt) : Ant(x, y, 
 
 void AntDIDI::Step(Tape& tape) {
   BaseStep(tape, "DIDI");
+}
+
+Ant_IDID::Ant_IDID(int x, int y, Direction dir, std::string ColorAnt) : Ant(x, y, dir, "IDID", std::move(ColorAnt)) {}
+
+void Ant_IDID::Step(Tape& tape) {
+  BaseStep(tape, "IDID");
+}
+
+Ant_IDID_45::Ant_IDID_45(int x, int y, Direction dir, std::string ColorAnt) : Ant(x, y, dir, "IDID45", std::move(ColorAnt)) {}
+
+void Ant_IDID_45::Step(Tape& tape) {
+  BaseStep(tape, "IDID45");
 }
 
 /*
