@@ -54,26 +54,6 @@ void Ant::TurnRight() {
   }
 }
 
-void Ant::RotateAnt() {
-  switch (Dir) {
-    case Direction::Up: 
-      Dir = Direction::Down;
-      break;
-
-    case Direction::Down: 
-      Dir = Direction::Up;
-      break;
-
-    case Direction::Left: 
-      Dir = Direction::Right;
-      break;
-
-    case Direction::Right: 
-      Dir = Direction::Left;
-      break;
-  }
-}
-
 void Ant::Move() {
   switch (Dir) {
     case Direction::Up: 
@@ -289,8 +269,8 @@ static bool ParseCarnivoras(const std::string& type, int& voracidad, std::string
   if (i < type.size() && type[i] == '-') {
     rule = type.substr(i + 1);
     voracidad = has_digits ? v : 50;
-    if (voracidad < 0) voracidad 0;
-    if (voracidad > 100) voracidad= 100;
+    if (voracidad < 0) voracidad = 0;
+    if (voracidad > 100) voracidad = 100;
     return !rule.empty();
   }
 
