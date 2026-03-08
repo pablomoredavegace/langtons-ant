@@ -56,17 +56,6 @@ Direction ParseDirection(char d) {
   }
 }
 
-
-static std::unique_ptr<Ant> TranslateAnt(const std::string& type, int x, int y, Direction dir) {
-  if(type == "DI") return std::make_unique<AntDI>(x, y, dir);
-  if(type == "DDII") return std::make_unique<AntDDII>(x, y, dir);
-  if(type == "IIDD") return std::make_unique<AntIIDD>(x, y, dir);
-  if(type == "DIDI") return std::make_unique<AntDIDI>(x, y, dir);
-  if(type == "IDID") return std::make_unique<Ant_IDID>(x, y, dir);
-  if(type == "IDID45") return std::make_unique<Ant_IDID_45>(x, y, dir);
-  return nullptr;
-}
-
 /**
  * @brief Guardar el estado actual de la simulación en un archivo
  * @param filename Archivo de salida

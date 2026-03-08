@@ -6,7 +6,7 @@
 BIN := LangtonsAnt
 
 # Ficheros
-SRC := main.cpp tape.cpp ant.cpp simulator.cpp
+SRC := main.cpp tape.cpp ant.cpp simulator.cpp tape_sliding.cpp
 OBJ := $(SRC:.cpp=.o)
 DEP := $(OBJ:.o=.d)
 

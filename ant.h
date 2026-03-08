@@ -8,8 +8,9 @@
 
 #include <iostream>
 #include <memory>
-#include "tape.h"
 
+//debug
+class Tape;
 
 /**
  * @enum Dirección
@@ -197,31 +198,31 @@ class HormigaCarnivora : public Ant {
 
 class CarnDI final : public HormigaCarnivora {
   public:
-    CarnDI(int x, int y, Direction dir, int voracidad = 50, std::string antColor, int life_initial = 10);
+    CarnDI(int x, int y, Direction dir, std::string antColor, int voracidad = 50, int life_initial = 10);
     void Step(Tape& tape) override;
 };
 
 class CarnDDII final : public HormigaCarnivora {
   public:
-    CarnDDII(int x, int y, Direction dir,int voracidad = 50, std::string antColor, int life_initial = 10);
+    CarnDDII(int x, int y, Direction dir, std::string antColor, int voracidad = 50, int life_initial = 10);
     void Step(Tape& tape) override;
 };
 
 class CarnIIDD final : public HormigaCarnivora {
   public:
-    CarnIIDD(int x, int y, Direction dir, int voracidad = 50, std::string antColor, int life_initial = 10);
+    CarnIIDD(int x, int y, Direction dir, std::string antColor, int voracidad = 50, int life_initial = 10);
     void Step(Tape& tape) override;
 };
 
 class CarnDIDI final : public HormigaCarnivora {
   public:
-    CarnDIDI(int x, int y, Direction dir, int voracidad = 50, std::string antColor, int life_initial = 10);
+    CarnDIDI(int x, int y, Direction dir, std::string antColor, int voracidad = 50, int life_initial = 10);
     void Step(Tape& tape) override;
 };
 
 class Carn_IDID final : public HormigaCarnivora {
   public:
-    Carn_IDID(int x, int y, Direction dir, int voracidad = 50, std::string antColor, int life_initial = 10);
+    Carn_IDID(int x, int y, Direction dir, std::string antColor, int voracidad = 50, int life_initial = 10);
     void Step(Tape& tape) override;
 };
 

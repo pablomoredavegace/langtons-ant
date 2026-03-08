@@ -137,6 +137,7 @@ char Simulator::CellChar(std::uint16_t color) const {
 }
 
 
+/*
 static void PrintCellColor(std::ostream& os, std::uint16_t color) {
   if(color == 0) {
     os << " ";
@@ -146,4 +147,5 @@ static void PrintCellColor(std::ostream& os, std::uint16_t color) {
   const int CellColor = 41 + (static_cast<int>(color - 1) % 7);
   os << "\033[" << CellColor << "m" << " " << "\033[0m";
 }
+*/
 

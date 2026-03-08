@@ -33,7 +33,7 @@ class Tape {
      * @param colors Colores
      */
     explicit Tape(std::uint16_t n_colors) : n_colors_(n_colors) {}
-    virtual ~Tape() = default;
+    virtual ~Tape();
 
 
 
@@ -45,7 +45,7 @@ class Tape {
      * @param y Coordenada Y 
      * @param color Color
      */
-    virtual void CambioColor(int x, int y, std::uint16_t color);
+    virtual void CambioColor(int x, int y, std::uint16_t color) = 0;
 
     /**
      * @brief Getters
@@ -54,7 +54,7 @@ class Tape {
     virtual std::size_t GetSizeX() const { return sizeX; };
     virtual std::size_t GetSizeY() const { return sizeY; };
     std::uint16_t GetNumColors() const noexcept { return n_colors; }
-    virtual std::uint16_t GetColor(int x, int y) const;
+    virtual std::uint16_t GetColor(int x, int y) const = 0;
 
 
     virtual std::uint16_t CicloColor(std::uint16_t c) const noexcept {

@@ -1,5 +1,6 @@
 
 #include "ant.h"
+#include "tape.h"
 #include <iostream>
 #include <utility>
 
@@ -132,8 +133,10 @@ HormigaHervibora::HormigaHervibora(std::string rule, int x, int y, Direction dir
   : Ant(x, y, dir, "H-" + rule, std::move(antColor), life_initial), Rule(std::move(rule)) {}
 
   void HormigaHervibora::Step(Tape& tape) {
-    const std::uint16_t c2 = BaseStep(tape, Rule, false);
-    MoreLife(static_cast<int>(c2));
+    tape.Normal(PosX, PosY, Dir);
+    const std::uint16_t c_before = tape.GetColor(PosX, PosY);
+    BaseStep(tape, Rule, false);
+    MoreLife(static_cast<int>(c_before));
   }
 
 HormigaCarnivora::HormigaCarnivora(std::string rule, int voracidad, int x, int y, Direction dir, std::string antColor, int life_initial)
@@ -194,35 +197,35 @@ void Ant_IDID_45::Step(Tape& tape) {
 }
 
 //----------------------------Carnivoras--------------------------------------
-CarnDI::CarnDI(int x, int y, Direction dir, int voracidad, std::string antColor, int life_initial)
+CarnDI::CarnDI(int x, int y, Direction dir, std::string antColor, int voracidad, int life_initial)
   : HormigaCarnivora("DI", voracidad, x, y, dir, std::move(antColor), life_initial) {}
 
 void CarnDI::Step(Tape& tape) {
   (void)BaseStep(tape, "DI", true);
 }
 
-CarnDDII::CarnDDII(int x, int y, Direction dir, int voracidad, std::string antColor, int life_initial)
+CarnDDII::CarnDDII(int x, int y, Direction dir, std::string antColor, int voracidad, int life_initial)
   : HormigaCarnivora("DDII", voracidad, x, y, dir, std::move(antColor), life_initial) {}
 
 void CarnDDII::Step(Tape& tape) {
   (void)BaseStep(tape, "DDII", true);
 }
 
-CarnIIDD::CarnIIDD(int x, int y, Direction dir, int voracidad, std::string antColor, int life_initial)
+CarnIIDD::CarnIIDD(int x, int y, Direction dir, std::string antColor, int voracidad, int life_initial)
   : HormigaCarnivora("IIDD", voracidad, x, y, dir, std::move(antColor), life_initial) {}
 
 void CarnIIDD::Step(Tape& tape) {
   (void)BaseStep(tape, "IIDD", true);
 }
 
-CarnDIDI::CarnDIDI(int x, int y, Direction dir, int voracidad, std::string antColor, int life_initial)
+CarnDIDI::CarnDIDI(int x, int y, Direction dir, std::string antColor, int voracidad, int life_initial)
   : HormigaCarnivora("DIDI", voracidad, x, y, dir, std::move(antColor), life_initial) {}
 
 void CarnDIDI::Step(Tape& tape) {
   (void)BaseStep(tape, "DIDI", true);
 }
 
-Carn_IDID::Carn_IDID(int x, int y, Direction dir, int voracidad, std::string antColor, int life_initial)
+Carn_IDID::Carn_IDID(int x, int y, Direction dir, std::string antColor, int voracidad, int life_initial)
   : HormigaCarnivora("IDID", voracidad, x, y, dir, std::move(antColor), life_initial) {}
 
 void Carn_IDID::Step(Tape& tape) {
@@ -279,37 +282,36 @@ static bool ParseCarnivoras(const std::string& type, int& voracidad, std::string
 
 std::unique_ptr<Ant> CrearHormiga(const std::string& type, int x, int y, Direction dir) {
 
-  if (type == "DI")   return std::make_unique<AntDI>(x, y, dir);
-  if (type == "DDII") return std::make_unique<AntDDII>(x, y, dir);
-  if (type == "IIDD") return std::make_unique<AntIIDD>(x, y, dir);
-  if (type == "DIDI") return std::make_unique<AntDIDI>(x, y, dir);
+  if (type == "DI")   return std::make_unique<AntDI>(x, y, dir, Rojo, 10);
+  if (type == "DDII") return std::make_unique<AntDDII>(x, y, dir, Amarillo, 10);
+  if (type == "IIDD") return std::make_unique<AntIIDD>(x, y, dir, Verde, 10);
+  if (type == "DIDI") return std::make_unique<AntDIDI>(x, y, dir, Azul, 10);
 
   if (Inicial(type, "H-")) {
     const std::string rule = type.substr(2);
-    if (rule == "DI")   return std::make_unique<AntDI>(x, y, dir);
-    if (rule == "DDII") return std::make_unique<AntDDII>(x, y, dir);
-    if (rule == "IIDD") return std::make_unique<AntIIDD>(x, y, dir);
-    if (rule == "DIDI") return std::make_unique<AntDIDI>(x, y, dir);
-
-    return nullptr;
-  }
-
-  if (Inicial(type, "C-")) {
-    const std::string rule = type.substr(2);
-    if (rule == "DI")   return std::make_unique<CarnDI>(x, y, dir, 50);
-    if (rule == "DDII") return std::make_unique<CarnDDII>(x, y, dir, 50);
-    if (rule == "IIDD") return std::make_unique<CarnIIDD>(x, y, dir, 50);
-    if (rule == "DIDI") return std::make_unique<CarnDIDI>(x, y, dir, 50);
+    if (rule == "DI")   return std::make_unique<AntDI>(x, y, dir, Rojo, 10);
+    if (rule == "DDII") return std::make_unique<AntDDII>(x, y, dir, Amarillo, 10);
+    if (rule == "IIDD") return std::make_unique<AntIIDD>(x, y, dir, Verde, 10);
+    if (rule == "DIDI") return std::make_unique<AntDIDI>(x, y, dir, Azul, 10);
     return nullptr;
   }
 
   int v = 50;
+  if (Inicial(type, "C-")) {
+    const std::string rule = type.substr(2);
+    if (rule == "DI")   return std::make_unique<CarnDI>(x, y, dir, Rojo, v, 10);
+    if (rule == "DDII") return std::make_unique<CarnDDII>(x, y, dir, Amarillo, v, 10);
+    if (rule == "IIDD") return std::make_unique<CarnIIDD>(x, y, dir, Verde, v, 10);
+    if (rule == "DIDI") return std::make_unique<CarnDIDI>(x, y, dir, Azul, v, 10);
+    return nullptr;
+  }
+
   std::string rule;
   if (ParseCarnivoras(type, v, rule)) {
-    if (rule == "DI")   return std::make_unique<CarnDI>(x, y, dir, v);
-    if (rule == "DDII") return std::make_unique<CarnDDII>(x, y, dir, v);
-    if (rule == "IIDD") return std::make_unique<CarnIIDD>(x, y, dir, v);
-    if (rule == "DIDI") return std::make_unique<CarnDIDI>(x, y, dir, v);
+    if (rule == "DI")   return std::make_unique<CarnDI>(x, y, dir, Rojo, v, 10);
+    if (rule == "DDII") return std::make_unique<CarnDDII>(x, y, dir, Amarillo, v, 10);
+    if (rule == "IIDD") return std::make_unique<CarnIIDD>(x, y, dir, Verde, v, 10);
+    if (rule == "DIDI") return std::make_unique<CarnDIDI>(x, y, dir, Azul, v, 10);
     return nullptr;
   }
 

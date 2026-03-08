@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 
+Tape::~Tape() = default;
 
 TapeFixed::TapeFixed(size_t sizeX, size_t sizeY, std::uint16_t n_colors) 
   : Tape(n_colors), sx_(sizeX), sy_(sizeY), cells_(sizeX * sizeY, 0) {}
