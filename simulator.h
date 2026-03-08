@@ -29,7 +29,7 @@ class Simulator {
      * @param tape Cinta inicial
      * @param ant Hormiga inicial
      */
-    Simulator(Tape tape, std::vector<std::unique_ptr<Ant>> ants);
+    Simulator(std::unique_ptr<Tape> tape, std::vector<std::unique_ptr<Ant>> ants);
 
     /**
      * @brief Ejecución de un paso de simulación
@@ -53,7 +53,7 @@ class Simulator {
      * @brief Getters
      * @return Referencia constante a la cinta / hormigas
      */
-    const Tape& GetTape() const { return tape_; }
+    const Tape& GetTape() const noexcept { return *tape_; }
     const std::vector<std::unique_ptr<Ant>>& GetAnts() const { return ants_; }
     
 
@@ -64,7 +64,11 @@ class Simulator {
     std::size_t GetSteps() const { return steps_; }
 
     private:
-      Tape tape_;
+
+      void Colisiones();
+      void EliminarHormiga();
+
+      std::unique_ptr<Tape> tape_;
       std::vector<std::unique_ptr<Ant>> ants_;
       std::size_t steps_{0};
 };

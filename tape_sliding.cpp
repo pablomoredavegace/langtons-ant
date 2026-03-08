@@ -8,7 +8,10 @@ TapeSliding::TapeSliding(std::size_t sx, std::size_t sy, std::uint16_t n_colors)
   x_max_ = static_cast<int>(sx) - 1;
   y_max_ = static_cast<int>(sy) - 1;
 
-  grid_.assign(static_cast<std::size_t>(sy), std::vector<std::uint16_t>(static_cast<std::size_t>(sx), 0));
+  grid_ = SlidingVector< SlidingVector<std::uint16_t> >(y_min_, y_max_);
+  for (int y = y_min_; y <= y_max_; ++y) {
+    grid_[y] = SlidingVector<std::uint16_t>(x_min_, x_max_, 0);
+  }
 }
 
 std::size_t TapeSliding::GetSizeX() const noexcept { return static_cast<std::size_t>(x_max_ - x_min_ + 1); }
@@ -16,24 +19,22 @@ std::size_t TapeSliding::GetSizeY() const noexcept { return static_cast<std::siz
 
 void TapeSliding::PermX(int x) {
   while (x < x_min_) {
-    // insert columna a la izquierda
-    for (auto& row : grid_) row.insert(row.begin(), 0);
+    for (int y = y_min_; y <= y_max_; ++y) grid_[y].PushFront(0);
     --x_min_;
   }
   while (x > x_max_) {
-    for (auto& row : grid_) row.push_back(0);
+    for (int y = y_min_; y <= y_max_; ++y) grid_[y].PushBack(0);
     ++x_max_;
   }
 }
 
 void TapeSliding::PermY(int y) {
-  const std::size_t width = GetSizeX();
   while (y < y_min_) {
-    grid_.insert(grid_.begin(), std::vector<std::uint16_t>(width, 0));
+    grid_.PushFront(SlidingVector<std::uint16_t>(x_min_, x_max_, 0));
     --y_min_;
   }
   while (y > y_max_) {
-    grid_.push_back(std::vector<std::uint16_t>(width, 0));
+    grid_.PushBack(SlidingVector<std::uint16_t>(x_min_, x_max_, 0));
     ++y_max_;
   }
 }

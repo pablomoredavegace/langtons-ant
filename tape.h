@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cstdint>
 #include "ant.h"
+#include "sliding_vector.h"
 
 
 /**
@@ -183,7 +184,7 @@ class TapeSliding final : public Tape {
   int x_min_{0}, x_max_{-1};
   int y_min_{0}, y_max_{-1};
 
-  std::vector<std::vector<std::uint16_t>> grid_;
+  SlidingVector< SlidingVector<std::uint16_t> > grid_;
 };
 
 #endif

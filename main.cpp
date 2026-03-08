@@ -19,6 +19,22 @@ void BorrarOutput() {
   std::cout.flush();
 }
 
+static std::string Corte(const std::string& s) {
+  std::size_t b = 0;
+  while (b < s.size() && std::isspace(static_cast<unsigned char>(s[b]))) ++b;
+  std::size_t e = s.size();
+  while (e > b && std::isspace(static_cast<unsigned char>(s[e - 1]))) --e;
+  return s.substr(b, e - b);
+}
+
+static std::vector<std::string> SepararHormigas(const std::string& s, char delim) {
+  std::vector<std::string> out;
+  std::string part;
+  std::istringstream iss(s);
+  while (std::getline(iss, part, delim)) out.push_back(Corte(part));
+  return out;
+}
+
 /**
  * @brief Conversión de entero del archivo de entrada a dirección
  * @param d Valor < > ^ v
@@ -64,10 +80,9 @@ bool SaveState(const std::string& filename, const Simulator& sim) {
   }
 
   const Tape& tape = sim.GetTape();
-  const auto& ants = sim.GetAnts();
-
   out << tape.GetSizeX() << " " << tape.GetSizeY() << " " << tape.GetNumColors() << "\n";
 
+  const auto& ants = sim.GetAnts();
   for(std::size_t i = 0; i < ants.size(); ++i) {
     const auto& a = ants[i];
     out << a->GetType() << " " << a->GetX() << " " << a->GetY() << " " << a->Orientation();
@@ -84,7 +99,8 @@ bool SaveState(const std::string& filename, const Simulator& sim) {
 int main(int argc, char* argv[]) {
 
   bool porPasos = false;
-  std::size_t maxSteps = 10000;
+  std::string tape_modo = "periodic";
+  std::size_t maxSteps = 2000;
   int delayEnMs= 50;
 
   std::vector<std::string> args(argv + 1, argv + argc);
@@ -92,110 +108,108 @@ int main(int argc, char* argv[]) {
   if(args.empty()) {
     std::cout << "Uso:\n"
     << " " << argv[0] << " input.txt [pasosMax] [delayEnMs]\n"
-    << " " << argv[0] << " -p input.txt\n";
+    << " " << argv[0] << " -p"
+    << " " << argv[0] << " -t periodic|reflective|sliding";
     return 1;
   }
 
-  int argumentos = 0;
-
-  if(args[0] == "-p") {
-    porPasos = true;
-    argumentos = 1;
+int i = 0;
+  while (i < (int)args.size()) {
+    if (args[i] == "-p") { porPasos = true; ++i; continue; }
+    if (args[i] == "-t" && i + 1 < (int)args.size()) { tape_modo = args[i+1]; i += 2; continue; }
+    break;
   }
-  
-  if(argumentos >= static_cast<int>(args.size())) {
-    std::cerr << "Falta el fichero de entrada\n";
+
+  if (i >= (int)args.size()) {
+    std::cerr << "Falta input.txt\n";
+    return 1;
+  }
+  const std::string input = args[i++];
+
+  if (!porPasos) {
+    if (i < (int)args.size()) maxSteps = (std::size_t)std::stoull(args[i++]);
+    if (i < (int)args.size()) delayEnMs = std::stoi(args[i++]);
+  }
+
+  // ---- Leer fichero ----
+  std::ifstream in(input);
+  if (!in) {
+    std::cerr << "No se pudo abrir " << input << "\n";
     return 1;
   }
 
-  const std::string ArchivoInput = args[argumentos++];
+  std::size_t sx, sy;
+  int nColors;
+  in >> sx >> sy >> nColors;
 
-  if(!porPasos) {
-    if(argumentos < static_cast<int>(args.size())) {
-      maxSteps = static_cast<std::size_t>(std::stoull(args[argumentos++]));
-    }
-    if(argumentos < static_cast<int>(args.size())) {
-      delayEnMs = std::stoi(args[argumentos++]);
-    }
+
+  in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  std::string line2;
+  std::getline(in, line2);
+
+
+  std::unique_ptr<Tape> tape;
+  if (tape_modo == "periodic") {
+    tape = std::make_unique<TapePeriodic>(sx, sy, (std::uint16_t)nColors);
+  } else if (tape_modo == "reflective") {
+    tape = std::make_unique<TapeReflective>(sx, sy, (std::uint16_t)nColors);
+  } else if (tape_modo == "sliding") {
+    tape = std::make_unique<TapeSliding>(sx, sy, (std::uint16_t)nColors);
+  } else {
+    std::cerr << "Modo de cinta inválido: " << tape_modo << "\n";
+    return 1;
   }
 
-    std::ifstream in(ArchivoInput);
-    if(!in) {
-      std::cerr << "No se pudo abrir el fichero: " << ArchivoInput << "\n";
+  std::vector<std::unique_ptr<Ant>> ants;
+  for (const auto& chunk : SepararHormigas(line2, ';')) {
+    if (chunk.empty()) continue;
+    std::istringstream iss(chunk);
+
+    std::string type;
+    int x, y;
+    char dirc;
+    iss >> type >> x >> y >> dirc;
+
+    auto a = CrearHormiga(type, x, y, ParseDirection(dirc));
+    if (!a) {
+      std::cerr << "Tipo de hormiga inválido/no soportado: " << type << "\n";
       return 1;
     }
+    ants.push_back(std::move(a));
+  }
 
-    std::size_t sizeX, sizeY;
-    int nColors;
-    in >> sizeX >> sizeY >> nColors;
-    Tape tape(sizeX, sizeY, static_cast<std::uint16_t>(nColors));
+  if (ants.empty()) {
+    std::cerr << "No se cargó ninguna hormiga (línea 2 vacía o mal formada)\n";
+    return 1;
+  }
 
-    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    std::string line2;
-    std::getline(in, line2);
-    std::vector<std::unique_ptr<Ant>> ants;
-
-    std::stringstream ss(line2);
-    std::string chunk;
-    while(std::getline(ss, chunk, ';')) {
-      std::istringstream item(chunk);
-      std::string type;
-      int x, y;
-      char dir;
-
-      item >> type >> x >> y >> dir;
-      auto a = TranslateAnt(type, x, y, ParseDirection(dir));
-      if(!a) {
-        std::cerr << "Tipo no soportado: " << type << "\n";
-        return 1;
-      }
-      ants.push_back(std::move(a));
-    }  
-
-    int x, y, c;
-    while(in >> x >> y >> c) {
-      tape.CambioColor(x, y, static_cast<std::uint16_t>(c));
-    }
+  int x, y, c;
+  while (in >> x >> y >> c) {
+    tape->CambioColor(x, y, (std::uint16_t)c);
+  }
 
   Simulator sim(std::move(tape), std::move(ants));
 
-  if(porPasos) {
+  if (porPasos) {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    while(true) {
+    while (true) {
       BorrarOutput();
       sim.Print(std::cout);
 
       std::cout << "Enter: paso, q: salir ";
-      std::string inputPaso;
-      std::getline(std::cin, inputPaso);
-      
-      if(inputPaso == "q" || inputPaso == "Q") {
-        break;
-      }
+      std::string cmd;
+      std::getline(std::cin, cmd);
 
-      if(!sim.Step()) {
-        BorrarOutput();
-        sim.Print(std::cout);
-        std::cout << "\n Una hormiga salio de los limites\n";
-        break;
-      }
+      if (cmd == "q" || cmd == "Q") break;
+      if (!sim.Step()) break;
     }
   } else {
-    for(std::size_t i = 0; i < maxSteps; i++) {
+    for (std::size_t s = 0; s < maxSteps; ++s) {
       BorrarOutput();
       sim.Print(std::cout);
 
-      std::cout << "Pasos: " << sim.GetSteps() << " de " << maxSteps << "\n";
       std::this_thread::sleep_for(std::chrono::milliseconds(delayEnMs));
-
-      if(!sim.Step()) {
-        BorrarOutput();
-        sim.Print(std::cout);
-        std::cout << "\n Una hormiga salio de los limites\n";
-        break;
-      }
+      if (!sim.Step()) break;
     }
   }
 
